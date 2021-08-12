@@ -19,6 +19,8 @@ class Cell{
             bb : true,
             lb : true,
         };
+        this.isStart = false;
+        this.isTarget = false;
 
     }
 
@@ -86,11 +88,11 @@ class Cell{
         
     }
 
-    highlight(columns){
+    highlight(columns,color){
         let x = (this.colI * this.gridSize) / columns + 1;
         let y = (this.rowI * this.gridSize) / columns + 1;
 
-        context.fillStyle = "yellow";
+        context.fillStyle = color;
         context.fillRect(x,y,this.gridSize/columns - 3, this.gridSize/ columns -3);
     }
 
@@ -172,6 +174,8 @@ class Cell{
 
     }
 
+
+
 }
 /**
  * Maze class, class for the layout of the maze 
@@ -181,6 +185,7 @@ class Maze{
         this.size = size; // number of pixels
         this.cols = cols; // number of cols
         this.rows = rows; // number of rows
+        this.cellSize = size / cols ;
         this.grid = [];
         this.stacks = []; //stack for backtracking
     }
@@ -197,6 +202,24 @@ class Maze{
         }
         curr = this.grid[0][0];
     }
+
+    select(coordinate,selectFlag){
+        let x = coordinate[0];
+        let y = coordinate[1];
+
+        if(selectFlag==1){
+            let grid = this.grid;
+            grid[y][x].highlight(this.cols,"green");
+            grid[y][x].isStart == true;
+        }
+        if(selectFlag==-1){
+            let grid = this.grid;
+            grid[y][x].highlight(this.cols,"red");
+            grid[y][x].isTarget == true;
+        }
+
+    }
+
     draw(){
         maze.width = this.size;
         maze.height = this.size;
@@ -216,14 +239,14 @@ class Maze{
 
             this.stacks.push(curr);
 
-            curr.highlight(this.cols);
+            curr.highlight(this.cols,"yellow");
             curr.deleteBorder(curr,next);
             curr = next; 
         //back tracking if theres no valid neighbours 
         } else if (this.stacks.length > 0){
             let cell = this.stacks.pop();
             curr  = cell;
-            curr.highlight(this.cols);
+            curr.highlight(this.cols,"yellow");
         } 
 
         //finish drawing maze
@@ -242,6 +265,47 @@ class Maze{
     }
 
 }
+
+//function to find coordinates of clicks
+function getMousePosition(canvas, event) {
+    let rect = canvas.getBoundingClientRect();
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+    let res = [x,y];
+    return res;
+    
+}
+  
+
+
+
 let newMaze = new Maze(500,10,10);
 newMaze.setup();
 newMaze.draw();
+
+let start = [];
+let target = [];
+let selectFlag = 0;
+
+
+//select end and target
+maze.addEventListener("mousedown", function(e)
+{   
+    if(selectFlag === 0){
+        let startCoord = getMousePosition(maze, e);
+        start = [ Math.floor(startCoord[0]/ newMaze.cellSize),Math.floor(startCoord[1]/ newMaze.cellSize)];
+        selectFlag = 1;
+        newMaze.select(start,selectFlag);
+    } else if(selectFlag === 1){
+        let startCoord = getMousePosition(maze, e);
+        target = [ Math.floor(startCoord[0]/ newMaze.cellSize),Math.floor(startCoord[1]/ newMaze.cellSize)];
+        selectFlag = -1;
+        newMaze.select(target,selectFlag);
+    }
+    
+   
+});
+
+//let startIndex = [ (start[0]/ newMaze.cellSize),(start[1]/ newMaze.cellSize)];    
+
+
