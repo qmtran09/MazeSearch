@@ -2,6 +2,7 @@ let maze = document.querySelector(".maze");
 let context = maze.getContext("2d");
 let curr;
 
+
 /**
  * Cell class, class for the cells in the maze
  */
@@ -11,8 +12,10 @@ class Cell{
         this.colI = colI;
         this.pGrid = pGrid;
         this.gridSize = gridSize;
-        this.status = false; //initialize all cells to be empty at first
+        this.status = false; //initialize all cells to be empty at first, for maze generation 
+        //this.visited = false; //this one is for the search algo. 
         //object to store borders to the cell 
+        this.previous = undefined;
         this.borders = { 
             tb : true,
             rb : true,
@@ -21,6 +24,42 @@ class Cell{
         };
         this.isStart = false;
         this.isTarget = false;
+
+    }
+
+    getNeighbours(){
+        let grid = this.pGrid;
+        let row = this.rowI;
+        let col = this.colI;
+        let nb = []; 
+
+        //assign neigbnour and handle if cell is on edge of grid
+        let top = row !== 0 ? grid[row-1][col] : undefined;
+        let right = col !== grid.length - 1  ? grid[row][col+1] : undefined;
+        let bot = row !== grid.length -1 ? grid[row+1][col] : undefined;
+        let left = col !== 0 ? grid[row][col-1] : undefined;
+
+        if(top && !this.borders.tb ){
+            nb.push(top);
+            
+        }
+
+        if(right && !this.borders.rb ){
+            nb.push(right);
+            
+        }
+
+        if(bot && !this.borders.bb ){
+            nb.push(bot);
+            
+        }
+
+        if(left && !this.borders.lb ){
+            nb.push(left);
+            
+        }
+        
+        return nb;
 
     }
 
@@ -94,7 +133,10 @@ class Cell{
 
         context.fillStyle = color;
         context.fillRect(x,y,this.gridSize/columns - 3, this.gridSize/ columns -3);
+        requestAnimationFrame(this.highlight);
     }
+
+
 
 
     /**
@@ -210,12 +252,12 @@ class Maze{
         if(selectFlag==1){
             let grid = this.grid;
             grid[y][x].highlight(this.cols,"green");
-            grid[y][x].isStart == true;
+            grid[y][x].isStart = true;
         }
         if(selectFlag==-1){
             let grid = this.grid;
             grid[y][x].highlight(this.cols,"red");
-            grid[y][x].isTarget == true;
+            grid[y][x].isTarget = true;
         }
 
     }
@@ -259,12 +301,46 @@ class Maze{
             return;
         }
 
-        window.requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
             this.draw();
         })
     }
 
 }
+
+// Queue class
+class Queue
+{
+    // Array is used to implement a Queue
+    constructor()
+    {
+        this.items = [];
+    }
+                  
+    // enqueue function
+    enqueue(element)
+    {    
+        // adding element to the queue
+        this.items.push(element);
+    }
+    // dequeue function
+    dequeue()
+    {
+        // removing element from the queue
+        // returns underflow when called 
+        // on empty queue
+        if(this.isEmpty())
+            return "Underflow";
+        return this.items.shift();
+    }
+    // isEmpty function
+    isEmpty()
+    {
+        // return true if the queue is empty.
+        return this.items.length == 0;
+    }
+}
+
 
 //function to find coordinates of clicks
 function getMousePosition(canvas, event) {
@@ -275,7 +351,54 @@ function getMousePosition(canvas, event) {
     return res;
     
 }
-  
+
+
+ 
+function breathFirstSearch(newmaze,start,target,current,queue){
+
+    //maze.style.background = "black";
+    //newmaze.select(start,1);
+    //newmaze.select(target,-1);
+
+   // while(!queue.isEmpty()){
+        current = queue.dequeue();
+        
+      
+        // requestAnimationFrame(()=>{
+        current.highlight(newmaze.grid.length,"purple");
+        // },500);
+
+        if(current.isTarget){
+            return;
+
+
+            
+        } else {
+            console.log([current.colI,curr.rowI]);
+
+            let nb = current.getNeighbours();
+            //console.log(nb);
+            for(let i = 0; i<nb.length;i++){
+                queue.enqueue(nb[i]);
+                nb[i].previous = current;
+            }
+
+            requestAnimationFrame(()=>{
+                breathFirstSearch(newmaze,start,target,current,queue);
+            });
+        }
+
+        
+        
+
+
+
+
+   // }
+
+
+
+}
 
 
 
@@ -283,8 +406,8 @@ let newMaze = new Maze(500,10,10);
 newMaze.setup();
 newMaze.draw();
 
-let start = [];
-let target = [];
+var start = [];
+var target = [];
 let selectFlag = 0;
 
 
@@ -301,11 +424,25 @@ maze.addEventListener("mousedown", function(e)
         target = [ Math.floor(startCoord[0]/ newMaze.cellSize),Math.floor(startCoord[1]/ newMaze.cellSize)];
         selectFlag = -1;
         newMaze.select(target,selectFlag);
+        //breathFirstSearch(newMaze.grid,start);
+    }
+    //let startIndex = [ (start[0]/ newMaze.cellSize),(start[1]/ newMaze.cellSize)]; 
+
+    if(selectFlag==-1){
+        console.log(start);
+        console.log(target);
+        
+        var current = newMaze.grid[start[1]][start[0]];
+        var queue = new Queue;
+        queue.enqueue(current);
+
+        breathFirstSearch(newMaze,start,target,current,queue);
+       
+       
     }
     
    
 });
 
-//let startIndex = [ (start[0]/ newMaze.cellSize),(start[1]/ newMaze.cellSize)];    
 
 
