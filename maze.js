@@ -16,6 +16,7 @@ class Cell{
         //this.visited = false; //this one is for the search algo. 
         //object to store borders to the cell 
         this.previous = undefined;
+        this.searched = false;
         this.borders = { 
             tb : true,
             rb : true,
@@ -39,22 +40,22 @@ class Cell{
         let bot = row !== grid.length -1 ? grid[row+1][col] : undefined;
         let left = col !== 0 ? grid[row][col-1] : undefined;
 
-        if(top && !this.borders.tb ){
+        if(top && !this.borders.tb && !top.searched){
             nb.push(top);
             
         }
 
-        if(right && !this.borders.rb ){
+        if(right && !this.borders.rb  && !right.searched){
             nb.push(right);
             
         }
 
-        if(bot && !this.borders.bb ){
+        if(bot && !this.borders.bb && !bot.searched){
             nb.push(bot);
             
         }
 
-        if(left && !this.borders.lb ){
+        if(left && !this.borders.lb &&  !left.searched){
             nb.push(left);
             
         }
@@ -306,6 +307,47 @@ class Maze{
         })
     }
 
+    breathFirstSearch(start,target,current,queue){
+    
+       if(!queue.isEmpty()){
+            current = queue.dequeue();
+            current.searched = true;
+           
+
+    
+            if(current.isTarget){
+                return;
+    
+    
+                
+            } else {
+                if(current.isStart || current.isTarget ){
+                
+                } else{
+                    current.highlight(this.cols,"purple");
+                }
+                
+    
+               // console.log([current.colI,curr.rowI]);
+    
+                let nb = current.getNeighbours();
+                
+                for(let i = 0; i<nb.length;i++){
+                    queue.enqueue(nb[i]);
+                    nb[i].previous = current;
+                }
+    
+                requestAnimationFrame(()=>{
+                    this.breathFirstSearch(start,target,current,queue);
+                });
+            }
+    
+       }
+    
+    
+    
+    }
+
 }
 
 // Queue class
@@ -354,51 +396,7 @@ function getMousePosition(canvas, event) {
 
 
  
-function breathFirstSearch(newmaze,start,target,current,queue){
 
-    //maze.style.background = "black";
-    //newmaze.select(start,1);
-    //newmaze.select(target,-1);
-
-   // while(!queue.isEmpty()){
-        current = queue.dequeue();
-        
-      
-        // requestAnimationFrame(()=>{
-        current.highlight(newmaze.grid.length,"purple");
-        // },500);
-
-        if(current.isTarget){
-            return;
-
-
-            
-        } else {
-            console.log([current.colI,curr.rowI]);
-
-            let nb = current.getNeighbours();
-            //console.log(nb);
-            for(let i = 0; i<nb.length;i++){
-                queue.enqueue(nb[i]);
-                nb[i].previous = current;
-            }
-
-            requestAnimationFrame(()=>{
-                breathFirstSearch(newmaze,start,target,current,queue);
-            });
-        }
-
-        
-        
-
-
-
-
-   // }
-
-
-
-}
 
 
 
@@ -436,7 +434,7 @@ maze.addEventListener("mousedown", function(e)
         var queue = new Queue;
         queue.enqueue(current);
 
-        breathFirstSearch(newMaze,start,target,current,queue);
+        newMaze.breathFirstSearch(start,target,current,queue);
        
        
     }
