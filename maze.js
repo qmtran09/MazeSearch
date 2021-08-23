@@ -133,9 +133,12 @@ class Cell{
         let y = (this.rowI * this.gridSize) / columns + 1;
 
         context.fillStyle = color;
-        context.fillRect(x,y,this.gridSize/columns - 3, this.gridSize/ columns -3);
+        context.fillRect(x+1,y+1,this.gridSize/columns - 5, this.gridSize/ columns -5);
         requestAnimationFrame(this.highlight);
+
     }
+
+
 
 
 
@@ -191,9 +194,9 @@ class Cell{
         let x = (this.colI * size) / colSize;
         let y = (this.rowI * size) / rowSize;
         
-        context.strokeStyle = "white";
-        context.fillStyle = "black";
-        context.lineWidth = 2;
+        context.strokeStyle = "black";
+        context.fillStyle = "#a4aba6";
+        context.lineWidth = 5;
         
         if(this.borders.tb){
             this.createBorderTop(x,y,size,colSize,rowSize);
@@ -210,7 +213,7 @@ class Cell{
         }
         if(this.status){
             //+1 and -2 is so that when it fills the box it doesnt fill the borders
-            context.fillRect(x+1,y+1, size/colSize -2, size/rowSize-2);
+            context.fillRect(x+2,y+2, size/colSize -5, size/rowSize-5);
         }
 
 
@@ -266,7 +269,7 @@ class Maze{
     draw(){
         maze.width = this.size;
         maze.height = this.size;
-        maze.style.background = "black";
+        maze.style.background = "grey";
         curr.status = true;
 
         for (let r = 0; r < this.rows; r++){
@@ -296,9 +299,10 @@ class Maze{
         if(this.stacks.length==0){
             let x = (curr.colI * curr.gridSize) / this.cols + 1;
             let y = (curr.rowI * curr.gridSize) / this.cols + 1;
-    
-            context.fillStyle = "black";
-            context.fillRect(x,y,curr.gridSize/this.cols - 3, curr.gridSize/this.cols -3);
+            
+            // fix for initial cell not getting highlighted correctly
+            context.fillStyle = "#a4aba6";
+            context.fillRect(x+1,y+1,curr.gridSize/this.cols -5, curr.gridSize/this.cols -5);
             return;
         }
 
@@ -307,7 +311,27 @@ class Maze{
         })
     }
 
-    breathFirstSearch(start,target,current,queue){
+    //highlights the shortest path found by BFS
+    backTrackHighlight(cell){
+        if(cell.isStart === true){
+            cell.highlight(this.cols,"green");
+            return;
+        }
+
+        let previous = cell.previous;
+        console.log(previous);
+        previous.highlight(this.cols,"yellow");
+        
+        requestAnimationFrame(()=>{
+            this.backTrackHighlight(previous);
+        })
+
+
+
+    }
+
+    //recursive BFS
+    breathFirstSearch(start,current,queue){
     
        if(!queue.isEmpty()){
             current = queue.dequeue();
@@ -316,6 +340,8 @@ class Maze{
 
     
             if(current.isTarget){
+                this.backTrackHighlight(current);
+
                 return;
     
     
@@ -338,7 +364,7 @@ class Maze{
                 }
     
                 requestAnimationFrame(()=>{
-                    this.breathFirstSearch(start,target,current,queue);
+                    this.breathFirstSearch(start,current,queue);
                 });
             }
     
@@ -427,14 +453,14 @@ maze.addEventListener("mousedown", function(e)
     //let startIndex = [ (start[0]/ newMaze.cellSize),(start[1]/ newMaze.cellSize)]; 
 
     if(selectFlag==-1){
-        console.log(start);
-        console.log(target);
+        // console.log(start);
+        // console.log(target);
         
         var current = newMaze.grid[start[1]][start[0]];
         var queue = new Queue;
         queue.enqueue(current);
 
-        newMaze.breathFirstSearch(start,target,current,queue);
+        newMaze.breathFirstSearch(current,start,queue);
        
        
     }

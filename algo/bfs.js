@@ -9,7 +9,7 @@ function breathFirstSearch(grid,start){
     while(!queue.isEmpty()){
         let temp = q.dequeue();
         if(!temp.isTarget){
-            console.log([temp.colI,temp.rowI]);
+            //console.log([temp.colI,temp.rowI]);
         
             nb = temp.getNeighbours();
 
