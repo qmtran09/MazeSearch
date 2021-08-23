@@ -1,7 +1,7 @@
 let maze = document.querySelector(".maze");
 let context = maze.getContext("2d");
-let curr;
 
+let curr;
 
 /**
  * Cell class, class for the cells in the maze
@@ -28,6 +28,7 @@ class Cell{
 
     }
 
+    //get adjacent cells that can be accessed, ie. no borders 
     getNeighbours(){
         let grid = this.pGrid;
         let row = this.rowI;
@@ -56,6 +57,43 @@ class Cell{
         }
 
         if(left && !this.borders.lb &&  !left.searched){
+            nb.push(left);
+            
+        }
+        
+        return nb;
+
+    }
+
+    //get all adjcent cells 
+    getAdjacent(){
+        let grid = this.pGrid;
+        let row = this.rowI;
+        let col = this.colI;
+        let nb = []; 
+
+        //assign neigbnour and handle if cell is on edge of grid
+        let top = row !== 0 ? grid[row-1][col] : undefined;
+        let right = col !== grid.length - 1  ? grid[row][col+1] : undefined;
+        let bot = row !== grid.length -1 ? grid[row+1][col] : undefined;
+        let left = col !== 0 ? grid[row][col-1] : undefined;
+
+        if(top){
+            nb.push(top);
+            
+        }
+
+        if(right){
+            nb.push(right);
+            
+        }
+
+        if(bot){
+            nb.push(bot);
+            
+        }
+
+        if(left){
             nb.push(left);
             
         }
@@ -265,8 +303,59 @@ class Maze{
         }
 
     }
+    //not working.....
+    //generate maze with randomized prim's algoritm, using list of adjacent cells instead of edges
+    primMaze(){
+        maze.width = this.size;
+        maze.height = this.size;
+        maze.style.background = "grey";
+        curr.status = true;
 
-    draw(){
+        for (let r = 0; r < this.rows; r++){
+            for(let c = 0; c < this.cols; c++){
+                let grid = this.grid;
+                grid[r][c].drawBorder(this.size,this.cols,this.rows);
+            }
+        }
+
+        curr.highlight(this.cols,"yellow");
+        console.log(nbList);
+        if(!nbList.isEmpty){
+            let random = Math.floor(Math.random()*nbList.length);
+            let next = nbList[random];
+            console.log(next);
+            let index = nbList.indexOf(next);
+            nbList.splice(index,1);
+
+            if(!next.status){
+                next.status = true;
+                curr.deleteBorder(curr,next);
+                let temp = next.getAdjacent();
+                nbList.push.apply(nbList,temp);
+                
+
+            }
+            curr = next; 
+        //back tracking if theres no valid neighbours 
+        }else {
+            // let x = (curr.colI * curr.gridSize) / this.cols + 1;
+            // let y = (curr.rowI * curr.gridSize) / this.cols + 1;
+            
+            // // fix for initial cell not getting highlighted correctly
+            // context.fillStyle = "#a4aba6";
+            // context.fillRect(x+1,y+1,curr.gridSize/this.cols -5, curr.gridSize/this.cols -5);
+            return;
+        }
+
+        requestAnimationFrame(()=>{
+            this.primMaze();
+        })
+
+    }
+
+
+    //generate maze with randomized bfs using recursion
+    bfsMaze(){
         maze.width = this.size;
         maze.height = this.size;
         maze.style.background = "grey";
@@ -307,7 +396,7 @@ class Maze{
         }
 
         requestAnimationFrame(()=>{
-            this.draw();
+            this.bfsMaze();
         })
     }
 
@@ -428,7 +517,10 @@ function getMousePosition(canvas, event) {
 
 let newMaze = new Maze(500,10,10);
 newMaze.setup();
-newMaze.draw();
+
+let nbList = curr.getAdjacent();
+
+newMaze.primMaze();
 
 var start = [];
 var target = [];
