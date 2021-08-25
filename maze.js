@@ -65,7 +65,7 @@ class Cell{
 
     }
 
-    //get all adjcent cells 
+    //get all adjacent cells 
     getAdjacent(){
         let grid = this.pGrid;
         let row = this.rowI;
@@ -303,7 +303,6 @@ class Maze{
         }
 
     }
-    //not working.....
     //generate maze with randomized prim's algoritm, using list of adjacent cells instead of edges
     primMaze(){
         maze.width = this.size;
@@ -318,32 +317,49 @@ class Maze{
             }
         }
 
-        curr.highlight(this.cols,"yellow");
-        console.log(nbList);
+        //curr.highlight(this.cols,"yellow");
+        //console.log(nbList);
         if(!nbList.isEmpty){
             let random = Math.floor(Math.random()*nbList.length);
             let next = nbList[random];
-            console.log(next);
+           
             let index = nbList.indexOf(next);
             nbList.splice(index,1);
 
             if(!next.status){
-                next.status = true;
-                curr.deleteBorder(curr,next);
-                let temp = next.getAdjacent();
-                nbList.push.apply(nbList,temp);
                 
+                next.highlight(this.cols,"yellow");
+                
+                
+                let temp = next.getAdjacent();
+                let unvisitedNB = [];
+                let visitedNB = [];
+
+                for(let i = 0; i < temp.length;i++){
+                    if(temp[i].status){
+                        visitedNB.push(temp[i]);
+                    } else{
+                        unvisitedNB.push(temp[i]);
+                    }
+
+                }
+                
+                //connect cell to a random neigbouring visited cell
+                //add all unvisited cell to list 
+                random = Math.floor(Math.random()*visitedNB.length);
+                let connected = visitedNB[random]
+                next.deleteBorder(connected,next);
+                
+                nbList.push.apply(nbList,unvisitedNB);
+                //curr = next;
 
             }
-            curr = next; 
-        //back tracking if theres no valid neighbours 
+
+            curr = next;
+
+
         }else {
-            // let x = (curr.colI * curr.gridSize) / this.cols + 1;
-            // let y = (curr.rowI * curr.gridSize) / this.cols + 1;
-            
-            // // fix for initial cell not getting highlighted correctly
-            // context.fillStyle = "#a4aba6";
-            // context.fillRect(x+1,y+1,curr.gridSize/this.cols -5, curr.gridSize/this.cols -5);
+         
             return;
         }
 
