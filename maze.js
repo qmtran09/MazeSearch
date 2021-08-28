@@ -13,10 +13,13 @@ class Cell{
         this.pGrid = pGrid;
         this.gridSize = gridSize;
         this.status = false; //initialize all cells to be empty at first, for maze generation 
-        //this.visited = false; //this one is for the search algo. 
-        //object to store borders to the cell 
         this.previous = undefined;
         this.searched = false;
+
+        //a* start variables, f = g + h 
+        this.gScore = Infinity;
+        this.hScore = Infinity;
+        this.fScore = Infinity; 
         this.borders = { 
             tb : true,
             rb : true,
@@ -446,7 +449,7 @@ class Maze{
     
             if(current.isTarget){
                 this.backTrackHighlight(current);
-
+                
                 return;
     
     
@@ -479,11 +482,72 @@ class Maze{
     
     }
 
+    /**
+     * A* algorithm
+     * @param {*} start: starting cell
+     * @param {*} target: target cell
+     */
+    Astar(start,target){
+        //use priority queue so we can retrieve the item with the lowest fScore with O(1) time.
+        var openSet = new PriorityQueue();
+        
+    
+        start.gScore = 0;
+        start.fScore = heuristic(start,target);
+
+        openSet.enqueue(start,start.fScore);
+
+        while(!openSet.isEmpty){
+            let current = openSet.dequeue();
+            current.highlight(this.cols,"purple");
+
+            //once target is found trace back to start to get shortest path
+            if(current.isTarget){
+                this.backTrackHighlight(current);
+
+                return;
+            }
+
+            let nb = current.getNeighbours;
+
+            for(let i = 0; i < nb.length; i++){
+                let tempG = current.gScore + 1;
+                if(tempG < nb[i].gScore){
+
+                    nb[i].previous = current;
+                    nb[i].gScore = tempG;
+                    nb[i].fScore = nb[i].gScore + heuristic(nb,target);
+                    if(!openSet.contains(nb[i])){
+                        openSet.enqueue(nb[i],nb[i].fScore);
+                    }
+                }
+
+
+
+            }
+
+
+
+        }
+
+
+    }
+
+
+}
+
+/**
+ * Heuristic function, using manhatten distance
+ */
+function heuristic(current,target){
+
+    let distance = abs(current.colI - target.colI) + abs(current.rowI - target.rowI);
+    return distance; 
+
 }
 
 // Queue class
-class Queue
-{
+class Queue{
     // Array is used to implement a Queue
     constructor()
     {
@@ -512,6 +576,110 @@ class Queue
         // return true if the queue is empty.
         return this.items.length == 0;
     }
+}
+
+
+// User defined class
+// to store element and its priority
+class QElement {
+    constructor(element, priority)
+    {
+        this.element = element;
+        this.priority = priority;
+    }
+}
+ 
+// PriorityQueue class
+class PriorityQueue {
+ 
+    // An array is used to implement priority
+    constructor()
+    {
+        this.items = [];
+    }
+ 
+    // enqueue function to add element
+    // to the queue as per priority
+    enqueue(element, priority)
+    {
+        // creating object from queue element
+        var qElement = new QElement(element, priority);
+        var contain = false;
+    
+        // iterating through the entire
+        // item array to add element at the
+        // correct location of the Queue
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].priority > qElement.priority) {
+                // Once the correct location is found it is
+                // enqueued
+                this.items.splice(i, 0, qElement);
+                contain = true;
+                break;
+            }
+        }
+    
+        // if the element have the highest priority
+        // it is added at the end of the queue
+        if (!contain) {
+            this.items.push(qElement);
+        }
+    }
+
+    // dequeue method to remove
+    // element from the queue
+    dequeue()
+    {
+        // return the dequeued element
+        // and remove it.
+        // if the queue is empty
+        // returns Underflow
+        if (this.isEmpty())
+            return "Underflow";
+        return this.items.shift();
+    }
+
+    // front function
+    front()
+    {
+        // returns the highest priority element
+        // in the Priority queue without removing it.
+        if (this.isEmpty())
+            return "No elements in Queue";
+        return this.items[0];
+    }
+
+    // rear function
+    rear()
+    {
+        // returns the lowest priority
+        // element of the queue
+        if (this.isEmpty())
+            return "No elements in Queue";
+        return this.items[this.items.length - 1];
+    }
+
+
+    // isEmpty function
+    isEmpty()
+    {
+        // return true if the queue is empty.
+        return this.items.length == 0;
+    }
+
+    //function to check if pQueue contains a certain cell
+    contains(cell){
+        for(let i = 0; i< this.items.length; i++ ){
+            if(this.items[i].colI == cell.colI && this.items[i].rowI == cell.rowI){
+                return true;
+            }
+        }
+        return false; 
+    }
+
+
+
+
 }
 
 
