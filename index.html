@@ -1,11 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <link href="https://fonts.googleapis.com/css?family=Work+Sans:400,600">
+        <link href="style.css" rel="stylesheet" type="text/css">  
         <meta charset="utf-8">
         <meta name="vp" content = "width=device-width", initial-scale="1.0">
-        <title>Maze</title> 
+        <title>Maze Search</title>
+  
     </head>
     <body>
+    <header>
+        <div class="container">
+        
+            <h1 class="title">Maze Search</h1>
+            <nav>
+                <ul>
+                    <li>
+                        <div class="customSelect" >
+                            <select id = "selMazeAlgo">
+                                <option value="0">Select Maze Algo</option>
+                                <option value="1">Randomized DFS</option>
+                                <option value="2">Randomized Prim's</option>
+                            </select>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="customSelect">
+                            <select id = "selSearchAlgo">
+                                <option value="0">Select Search Algo</option>
+                                <option value="1">BFS</option>
+                                <option value="2">A*</option>
+                            </select>
+                        </div>
+                    </li>
+                    <li>
+                        <button type="button" class="navButton" id="genMze">generate Maze</button>
+                    </li>
+                    <li>
+                        <button type="button" class="navButton" id="searchBtn">Search!</button>
+                    </li>
+    
+                </ul>
+            </nav>
+            
+        </div>
+        <script src="customSelect.js"></script>
+    </header>    
+
+      
         <canvas class = "maze"></canvas>
         <script src="maze.js"></script>
     </body>

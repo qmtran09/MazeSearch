@@ -1,6 +1,5 @@
 let maze = document.querySelector(".maze");
 let context = maze.getContext("2d");
-
 let curr;
 
 /**
@@ -744,5 +743,6 @@ maze.addEventListener("mousedown", function(e)
    
 });
 
-
+var mazeSel = document.getElementById("selMazeAlgo");
+var mazeButton = document.getElementById("")
 

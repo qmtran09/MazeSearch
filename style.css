@@ -1,0 +1,124 @@
+body {
+    margin: 0;
+    background:"white";
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 400;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+header {
+    background: #55d6aa;
+}
+
+header::after{
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.title {
+    float: left;
+ 
+}
+
+nav{
+    float: right;
+}
+
+nav ul{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+nav li {
+    display: inline-block;
+    margin-left: 80px;
+    padding-top: 5%;
+    position: relative;
+}
+
+canvas {
+    padding-left: 0;
+    padding-right: 0;
+    margin-top: 3%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    
+}
+
+.navButton{
+    text-transform: uppercase;
+    outline: none;
+    border: 0;
+    background-color: #55d6aa;
+    line-height: 30px;
+    color: "black";    display: inline-block;
+
+    transition-duration: 0.2s;
+   
+}
+
+.navButton:hover {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+
+.customSelect{
+    position: relative;
+    background-color: #55d6aa;
+    margin-bottom: 5%;
+}
+
+.customSelect select {
+    display: none; /*hide original SELECT element: */
+}
+
+
+
+.select-selected:after {
+    position: absolute;
+    content: "";
+    top: 14px;
+    right: 2px;
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-color: #fff transparent transparent transparent;
+  }
+
+  .select-selected.select-arrow-active:after {
+    border-color: transparent transparent #fff transparent;
+    top: 7px;
+    
+  }
+
+  .select-items div,.select-selected {
+    color: black;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+    cursor: pointer;
+  }
+
+  .select-items {
+    position: absolute;
+    background-color: #55d6aa;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+  }
+
+  .select-hide {
+    display: none;
+  }
+
+  .select-items div:hover, .same-as-selected {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
