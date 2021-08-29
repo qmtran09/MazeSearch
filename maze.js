@@ -436,7 +436,7 @@ class Maze{
     }
 
     //recursive BFS
-    breathFirstSearch(start,current,queue){
+    breathFirstSearch(current,queue){
     
        if(!queue.isEmpty()){
             current = queue.dequeue();
@@ -469,7 +469,7 @@ class Maze{
                 }
     
                 requestAnimationFrame(()=>{
-                    this.breathFirstSearch(start,current,queue);
+                    this.breathFirstSearch(current,queue);
                 });
             }
     
@@ -542,8 +542,11 @@ class Maze{
             this.backTrackHighlight(cell);
             return;
         }
-        cell.highlight(this.cols,"purple");
+        if(!cell.isStart && !cell.isTarget){
+            cell.highlight(this.cols,"purple");
 
+        }
+        
         requestAnimationFrame(()=>{
             this.listHighlight(list);
         });
@@ -716,6 +719,8 @@ var mazeSel = document.getElementById("selMazeAlgo");
 var searchSel = document.getElementById("selSearchAlgo"); 
 var mazeButton = document.getElementById("genMze");
 var searchButton = document.getElementById("searchBtn");
+
+
 var newMaze = new Maze(500,10,10);
 newMaze.setup();
 var nbList = curr.getAdjacent();
@@ -766,11 +771,7 @@ maze.addEventListener("mousedown", function(e)
     
     if(selectFlag==-1){
     
-        var current = newMaze.grid[start[1]][start[0]];
-        var queue = new Queue;
-        queue.enqueue(current);
-        var openSet = new PriorityQueue();
-        newMaze.Astar(current,newMaze.grid[target[1]][target[0]],openSet);
+        
        
        
     }
@@ -778,8 +779,23 @@ maze.addEventListener("mousedown", function(e)
    
 });
 
-// searchButton.addEventListener("click",function(e){
-//     if(!mazeCheck){
-//         alert("you need to generate a maze before you can search!")
-//     } 
-// })
+searchButton.addEventListener("click",function(e){
+    if(!mazeCheck){
+        alert("you need to generate a maze before you can search!");
+    } else if(selectFlag !=-1){
+        alert("click on the maze to select a start and finish!");
+    } else if(searchSel.options[searchSel.selectedIndex].value == 0){
+        alert('select an search algo before you can perform searches!');
+    } else if(searchSel.options[searchSel.selectedIndex].value == 1){
+        var current = newMaze.grid[start[1]][start[0]];
+        var queue = new Queue;
+        queue.enqueue(current);
+        newMaze.breathFirstSearch(current,queue);
+
+    } else if(searchSel.options[searchSel.selectedIndex].value == 2){
+        var openSet = new PriorityQueue();
+        newMaze.Astar(newMaze.grid[start[1]][start[0]],newMaze.grid[target[1]][target[0]],openSet);
+       
+    }
+    
+});
