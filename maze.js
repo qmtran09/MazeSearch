@@ -17,7 +17,6 @@ class Cell{
 
         //a* start variables, f = g + h 
         this.gScore = Infinity;
-        this.hScore = Infinity;
         this.fScore = Infinity; 
         this.borders = { 
             tb : true,
@@ -319,8 +318,7 @@ class Maze{
             }
         }
 
-        //curr.highlight(this.cols,"yellow");
-        //console.log(nbList);
+
         if(!nbList.isEmpty){
             let random = Math.floor(Math.random()*nbList.length);
             let next = nbList[random];
@@ -373,7 +371,7 @@ class Maze{
 
 
     //generate maze with randomized bfs using recursion
-    bfsMaze(){
+    dfsMaze(){
         maze.width = this.size;
         maze.height = this.size;
         maze.style.background = "grey";
@@ -414,7 +412,7 @@ class Maze{
         }
 
         requestAnimationFrame(()=>{
-            this.bfsMaze();
+            this.dfsMaze();
         })
     }
 
@@ -426,7 +424,7 @@ class Maze{
         }
 
         let previous = cell.previous;
-        console.log(previous);
+
         previous.highlight(this.cols,"yellow");
         
         requestAnimationFrame(()=>{
@@ -461,7 +459,7 @@ class Maze{
                 }
                 
     
-               // console.log([current.colI,curr.rowI]);
+
     
                 let nb = current.getNeighbours();
                 
@@ -486,34 +484,36 @@ class Maze{
      * @param {*} start: starting cell
      * @param {*} target: target cell
      */
-    Astar(start,target){
+    Astar(start,target,openSet){
         //use priority queue so we can retrieve the item with the lowest fScore with O(1) time.
-        var openSet = new PriorityQueue();
         
+        var searchedList = []
     
         start.gScore = 0;
         start.fScore = heuristic(start,target);
 
         openSet.enqueue(start,start.fScore);
-
-        while(!openSet.isEmpty){
+    
+        while(!openSet.isEmpty()){
+         
             let current = openSet.dequeue();
-            current.highlight(this.cols,"purple");
+            searchedList.push(current.element);
+        
 
             //once target is found trace back to start to get shortest path
-            if(current.isTarget){
-                this.backTrackHighlight(current);
+            if(current.element.isTarget){
+                //highlights the search
+                this.listHighlight(searchedList);
 
                 return;
             }
-
-            let nb = current.getNeighbours;
+            
+            let nb = current.element.getNeighbours();
 
             for(let i = 0; i < nb.length; i++){
-                let tempG = current.gScore + 1;
+                let tempG = current.element.gScore + 1;
                 if(tempG < nb[i].gScore){
-
-                    nb[i].previous = current;
+                    nb[i].previous = current.element;
                     nb[i].gScore = tempG;
                     nb[i].fScore = nb[i].gScore + heuristic(nb,target);
                     if(!openSet.contains(nb[i])){
@@ -524,23 +524,42 @@ class Maze{
 
 
             }
-
-
+            
 
         }
 
 
+
+
+    }
+    /**
+     * helper function for Astar to highlight search and shortest path
+     */
+    listHighlight(list){
+        let cell = list.shift();
+        console.log(cell)
+        if(cell.isTarget){
+            this.backTrackHighlight(cell);
+            return;
+        }
+        cell.highlight(this.cols,"purple");
+
+        requestAnimationFrame(()=>{
+            this.listHighlight(list);
+        });
     }
 
 
 }
+
+
 
 /**
  * Heuristic function, using manhatten distance
  */
 function heuristic(current,target){
 
-    let distance = abs(current.colI - target.colI) + abs(current.rowI - target.rowI);
+    let distance = Math.abs(current.colI - target.colI) + Math.abs(current.rowI - target.rowI);
     return distance; 
 
 }
@@ -693,17 +712,36 @@ function getMousePosition(canvas, event) {
 }
 
 
- 
-
-
-
-
-let newMaze = new Maze(500,10,10);
+var mazeSel = document.getElementById("selMazeAlgo");
+var searchSel = document.getElementById("selSearchAlgo"); 
+var mazeButton = document.getElementById("genMze");
+var searchButton = document.getElementById("searchBtn");
+var newMaze = new Maze(500,10,10);
 newMaze.setup();
+var nbList = curr.getAdjacent();
+var mazeCheck = false;
 
-let nbList = curr.getAdjacent();
 
-newMaze.primMaze();
+//if button gen maze button is pressed, generate a maze based on user's selection.
+mazeButton.addEventListener("click", function(e){
+    if(mazeSel.options[mazeSel.selectedIndex].value == 1){
+        newMaze = new Maze(500,10,10);
+        newMaze.setup();
+        newMaze.dfsMaze();
+        mazeCheck = true;
+    }else if(mazeSel.options[mazeSel.selectedIndex].value == 2){
+        newMaze = new Maze(500,10,10);
+        newMaze.setup();
+        nbList = curr.getAdjacent();
+        newMaze.primMaze();
+        mazeCheck = true;
+    }else{
+        alert("Please select maze generation method!");
+        mazeCheck = false;
+    }
+
+});
+
 
 var start = [];
 var target = [];
@@ -723,19 +761,16 @@ maze.addEventListener("mousedown", function(e)
         target = [ Math.floor(startCoord[0]/ newMaze.cellSize),Math.floor(startCoord[1]/ newMaze.cellSize)];
         selectFlag = -1;
         newMaze.select(target,selectFlag);
-        //breathFirstSearch(newMaze.grid,start);
+       
     }
-    //let startIndex = [ (start[0]/ newMaze.cellSize),(start[1]/ newMaze.cellSize)]; 
-
+    
     if(selectFlag==-1){
-        // console.log(start);
-        // console.log(target);
-        
+    
         var current = newMaze.grid[start[1]][start[0]];
         var queue = new Queue;
         queue.enqueue(current);
-
-        newMaze.breathFirstSearch(current,start,queue);
+        var openSet = new PriorityQueue();
+        newMaze.Astar(current,newMaze.grid[target[1]][target[0]],openSet);
        
        
     }
@@ -743,6 +778,8 @@ maze.addEventListener("mousedown", function(e)
    
 });
 
-var mazeSel = document.getElementById("selMazeAlgo");
-var mazeButton = document.getElementById("")
-
+// searchButton.addEventListener("click",function(e){
+//     if(!mazeCheck){
+//         alert("you need to generate a maze before you can search!")
+//     } 
+// })
