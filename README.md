@@ -14,3 +14,4 @@ Then select a search algorithm and press on the cells of the maze to select star
 will select a starting point and a second click will select a target. 
 
 
+g
