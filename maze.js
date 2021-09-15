@@ -719,13 +719,16 @@ var mazeSel = document.getElementById("selMazeAlgo");
 var searchSel = document.getElementById("selSearchAlgo"); 
 var mazeButton = document.getElementById("genMze");
 var searchButton = document.getElementById("searchBtn");
+var clearButton = document.getElementById("clearBtn");
 
+// var newMaze = new Maze(500,10,10);
+// newMaze.setup();
+// var nbList = curr.getAdjacent();
+// var mazeCheck = false;
 
-var newMaze = new Maze(500,10,10);
-newMaze.setup();
-var nbList = curr.getAdjacent();
-var mazeCheck = false;
-
+var start = [];
+var target = [];
+let selectFlag = 0;
 
 //if button gen maze button is pressed, generate a maze based on user's selection.
 mazeButton.addEventListener("click", function(e){
@@ -744,13 +747,14 @@ mazeButton.addEventListener("click", function(e){
         alert("Please select maze generation method!");
         mazeCheck = false;
     }
+    start = []
+    target = []
+    selectFlag = 0
 
 });
 
 
-var start = [];
-var target = [];
-let selectFlag = 0;
+
 
 
 //select end and target
@@ -768,16 +772,33 @@ maze.addEventListener("mousedown", function(e)
         newMaze.select(target,selectFlag);
        
     }
-    
-    if(selectFlag==-1){
-    
-        
-       
-       
-    }
-    
    
 });
+
+//for now we just generate a new maze and clear end and target selection
+clearButton.addEventListener("click", function(e){
+    if(mazeSel.options[mazeSel.selectedIndex].value == 1){
+        newMaze = new Maze(500,10,10);
+        newMaze.setup();
+        newMaze.dfsMaze();
+        mazeCheck = true;
+    }else if(mazeSel.options[mazeSel.selectedIndex].value == 2){
+        newMaze = new Maze(500,10,10);
+        newMaze.setup();
+        nbList = curr.getAdjacent();
+        newMaze.primMaze();
+        mazeCheck = true;
+    }else{
+        alert("Please select maze generation method!");
+        mazeCheck = false;
+    }
+    start = []
+    target = []
+    selectFlag = 0
+    
+
+});
+
 
 searchButton.addEventListener("click",function(e){
     if(!mazeCheck){

@@ -13,5 +13,5 @@ To use first select an algorithm to generate a maze and press generate maze.
 Then select a search algorithm and press on the cells of the maze to select start and finish. The first click
 will select a starting point and a second click will select a target. 
 
+You can use the reset button to regenerate a new maze and select different start and target
 
-g
